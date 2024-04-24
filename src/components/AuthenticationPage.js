@@ -1,13 +1,59 @@
-import React, { useEffect, useState } from "react";
+import React, { useRef, useState } from "react";
 import { NETFLIX_BACKGROUND_IMAGE, NETFLIX_LOGO } from "../utils/constants";
 import useResponsiveAdjust from "../hooks/useResponsiveAdjust";
+import formValidation from "../utils/formValidation";
 
 const AuthenticationPage = () => {
   const [signInPage, setSignInPage] = useState(true);
   const isForMobile = useResponsiveAdjust();
+  const [validationMessage, setValidationMessage] = useState();
 
   const handleLoginPageFunc = () => {
     setSignInPage(!signInPage);
+    setValidationMessage("");
+    // name.current.value = "";
+    email.current.value = "";
+    password.current.value = "";
+  };
+
+  const handleKeyPress = () => {
+    setValidationMessage("");
+  };
+  const name = useRef(null);
+  const email = useRef(null);
+  const password = useRef(null);
+  const confirmPassword = useRef(null);
+
+  const authFunctions = () => {
+    if (signInPage) {
+      if (email.current.value === "" && password.current.value === "") {
+        setValidationMessage("Email and Password are Required");
+      } else {
+        const validationMessage = formValidation(
+          email.current.value,
+          password.current.value
+        );
+        setValidationMessage(validationMessage);
+      }
+    } else {
+      if (
+        email.current.value === "" &&
+        password.current.value === "" &&
+        name.current.value === ""
+      ) {
+        setValidationMessage("Name , Email and Password are Required");
+      } else {
+        const validationMessage = formValidation(
+          email.current.value,
+          password.current.value,
+          name.current.value
+        );
+        setValidationMessage(validationMessage);
+      }
+      if (password.current.value !== confirmPassword.current.value) {
+        setValidationMessage("Password and Confirmed Password are Mismatched");
+      }
+    }
   };
 
   return (
@@ -34,20 +80,43 @@ const AuthenticationPage = () => {
           </h1>
           {!signInPage && (
             <input
+              type="text"
+              ref={name}
+              onKeyUp={handleKeyPress}
               className="w-full mb-4 p-4 bg-[#564d4d]/30 border border-gray-500 rounded-md font-semibold"
               placeholder="Name"
             />
           )}
 
           <input
+            type="email"
+            ref={email}
+            onKeyUp={handleKeyPress}
             className="w-full mb-4 p-4 bg-[#564d4d]/30   border border-gray-500 rounded-md font-semibold"
             placeholder="E-mail"
           />
           <input
+            type="password"
+            ref={password}
+            onKeyUp={handleKeyPress}
             className="w-full mb-4 p-4 bg-[#564d4d]/30   border border-gray-500 rounded-md font-semibold"
             placeholder="password"
           />
-          <div className="w-full bg-[#E50914] p-4 text-center text-white font-semibold rounded-md cursor-pointer">
+          {!signInPage && (
+            <input
+              type="password"
+              ref={confirmPassword}
+              onKeyUp={handleKeyPress}
+              className="w-full mb-4 p-4 bg-[#564d4d]/30   border border-gray-500 rounded-md font-semibold"
+              placeholder="confirm password"
+            />
+          )}
+
+          <h1 className="text-red-600">{validationMessage}</h1>
+          <div
+            className="w-full bg-[#E50914] p-4 text-center text-white font-semibold rounded-md cursor-pointer"
+            onClick={authFunctions}
+          >
             {signInPage ? "Sign In" : "Sign Up"}
           </div>
           {signInPage ? (
