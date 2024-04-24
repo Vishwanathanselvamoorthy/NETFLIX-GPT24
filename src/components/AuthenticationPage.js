@@ -83,7 +83,7 @@ const AuthenticationPage = () => {
               type="text"
               ref={name}
               onKeyUp={handleKeyPress}
-              className="w-full mb-4 p-4 bg-[#564d4d]/30 border border-gray-500 rounded-md font-semibold"
+              className="w-full mb-4 p-4 bg-[#564d4d]/30 border border-gray-500 rounded-md font-semibold text-white"
               placeholder="Name"
             />
           )}
@@ -92,14 +92,14 @@ const AuthenticationPage = () => {
             type="email"
             ref={email}
             onKeyUp={handleKeyPress}
-            className="w-full mb-4 p-4 bg-[#564d4d]/30   border border-gray-500 rounded-md font-semibold"
+            className="w-full mb-4 p-4 bg-[#564d4d]/30   border border-gray-500 rounded-md font-semibold text-white"
             placeholder="E-mail"
           />
           <input
             type="password"
             ref={password}
             onKeyUp={handleKeyPress}
-            className="w-full mb-4 p-4 bg-[#564d4d]/30   border border-gray-500 rounded-md font-semibold"
+            className="w-full mb-4 p-4 bg-[#564d4d]/30   border border-gray-500 rounded-md font-semibold text-white"
             placeholder="password"
           />
           {!signInPage && (
@@ -107,7 +107,7 @@ const AuthenticationPage = () => {
               type="password"
               ref={confirmPassword}
               onKeyUp={handleKeyPress}
-              className="w-full mb-4 p-4 bg-[#564d4d]/30   border border-gray-500 rounded-md font-semibold"
+              className="w-full mb-4 p-4 bg-[#564d4d]/30   border border-gray-500 rounded-md font-semibold text-white"
               placeholder="confirm password"
             />
           )}
