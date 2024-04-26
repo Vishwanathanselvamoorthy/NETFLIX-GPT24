@@ -1,12 +1,34 @@
 import React, { useRef, useState } from "react";
 import { NETFLIX_BACKGROUND_IMAGE, NETFLIX_LOGO } from "../utils/constants";
 import useResponsiveAdjust from "../hooks/useResponsiveAdjust";
-import formValidation from "../utils/formValidation";
+import formValidation, {
+  signInFormValidation,
+  signUpFormValidation,
+} from "../utils/formValidation";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
+import { auth } from "../utils/firebase";
+import { useNavigate } from "react-router-dom";
 
 const AuthenticationPage = () => {
   const [signInPage, setSignInPage] = useState(true);
   const isForMobile = useResponsiveAdjust();
   const [validationMessage, setValidationMessage] = useState();
+  const [successMessage, setSuccessMessage] = useState();
+  const [userEmail, setUserEmail] = useState();
+  const [userPassword, setUserPassword] = useState();
+  const navigate = useNavigate();
+
+  const navigationFunc = () => {
+    return new Promise(function (resolve) {
+      setTimeout(() => {
+        navigate("/home");
+        resolve(); // Resolve the promise after navigating
+      }, 1000);
+    });
+  };
 
   const handleLoginPageFunc = () => {
     setSignInPage(!signInPage);
@@ -19,39 +41,66 @@ const AuthenticationPage = () => {
   const handleKeyPress = () => {
     setValidationMessage("");
   };
-  const name = useRef(null);
-  const email = useRef(null);
-  const password = useRef(null);
-  const confirmPassword = useRef(null);
+  const name = useRef();
+  const email = useRef();
+  const password = useRef();
+  const confirmPassword = useRef();
 
   const authFunctions = () => {
-    if (signInPage) {
-      if (email.current.value === "" && password.current.value === "") {
-        setValidationMessage("Email and Password are Required");
-      } else {
-        const validationMessage = formValidation(
+    if (!signInPage) {
+      const nameValue = name.current.value;
+      const emailValue = email.current.value;
+      const passwordValue = password.current.value;
+      const confirmPasswordValue = confirmPassword.current.value;
+
+      let submission = false;
+
+      const validationMessage = signUpFormValidation(
+        nameValue,
+        emailValue,
+        passwordValue,
+        confirmPasswordValue
+      );
+      setValidationMessage(validationMessage);
+      if (!validationMessage) {
+        submission = true;
+      }
+      if (submission) {
+        createUserWithEmailAndPassword(
+          auth,
           email.current.value,
           password.current.value
-        );
-        setValidationMessage(validationMessage);
+        )
+          .then((userCredential) => {
+            const user = userCredential.user;
+            setSuccessMessage("Sign Up Successfully");
+            setUserEmail(emailValue);
+            setUserPassword(passwordValue);
+          })
+          .catch((error) => {
+            setValidationMessage("Sign Up Failed.Try Again Later");
+          });
       }
     } else {
-      if (
-        email.current.value === "" &&
-        password.current.value === "" &&
-        name.current.value === ""
-      ) {
-        setValidationMessage("Name , Email and Password are Required");
-      } else {
-        const validationMessage = formValidation(
-          email.current.value,
-          password.current.value,
-          name.current.value
-        );
-        setValidationMessage(validationMessage);
+      const emailValue = email.current.value;
+      const passwordValue = password.current.value;
+
+      let submission = false;
+
+      const validationMessage = signInFormValidation(emailValue, passwordValue);
+      setValidationMessage(validationMessage);
+      if (!validationMessage) {
+        submission = true;
       }
-      if (password.current.value !== confirmPassword.current.value) {
-        setValidationMessage("Password and Confirmed Password are Mismatched");
+
+      if (submission) {
+        signInWithEmailAndPassword(auth, emailValue, passwordValue)
+          .then((userCredential) => {
+            setSuccessMessage("Sign In Successful");
+          })
+          .catch((error) => {
+            setValidationMessage("User Not Exist");
+          });
       }
     }
   };
@@ -112,7 +161,13 @@ const AuthenticationPage = () => {
             />
           )}
 
-          <h1 className="text-red-600">{validationMessage}</h1>
+          {successMessage ? (
+            <h1 className="text-green-600 font-bold mb-2">{successMessage}</h1>
+          ) : (
+            <h1 className="text-red-600 font-bold mb-2">{validationMessage}</h1>
+          )}
+
+          {/* <h1 className="text-red-600">{validationMessage}</h1> */}
           <div
             className="w-full bg-[#E50914] p-4 text-center text-white font-semibold rounded-md cursor-pointer"
             onClick={authFunctions}
